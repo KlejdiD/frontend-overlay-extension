@@ -12,6 +12,33 @@ let offsetX = 0;
 let offsetY = 0;
 let iframeInteractive = false;
 
+window.addEventListener("DOMContentLoaded", async () => {
+  chrome.storage.local.get(["overlayURL", "overlayOpacity"], (result) => {
+    if (result.overlayURL) {
+      urlInput.value = result.overlayURL;
+    }
+
+    if (result.overlayOpacity) {
+      opacitySlider.value = result.overlayOpacity;
+      overlayImage.style.opacity = result.overlayOpacity;
+
+      // Update existing overlay image on page (if present)
+      chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
+        chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          func: (opacity) => {
+            const iframe = document.getElementById("website-overlay");
+            const img = document.getElementById("screenshot-overlay");
+            if (iframe) iframe.style.opacity = opacity;
+            if (img) img.style.opacity = opacity;
+          },
+          args: [result.overlayOpacity],
+        });
+      });
+    }
+  });
+});
+
 opacitySlider.addEventListener("input", async () => {
   overlayImage.style.opacity = opacitySlider.value;
 
@@ -25,6 +52,8 @@ opacitySlider.addEventListener("input", async () => {
 
       const img = document.getElementById("screenshot-overlay");
       if (img) img.style.opacity = opacity;
+
+      chrome.storage.local.set({ overlayOpacity: opacitySlider.value });
     },
     args: [opacitySlider.value],
   });
@@ -57,7 +86,6 @@ interactionToggle.addEventListener("click", async () => {
 
 document.getElementById("loadButton").addEventListener("click", async () => {
   const url = document.getElementById("urlInput").value.trim();
-  console.log("button");
   if (!url.startsWith("http")) {
     alert("Please enter a valid URL (e.g., https://example.com)");
     return;
@@ -66,8 +94,9 @@ document.getElementById("loadButton").addEventListener("click", async () => {
   // Get the current active tab
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
-  console.log(url);
-  console.log([tab]);
+  // Save the link
+  chrome.storage.local.set({ overlayURL: url });
+
   // Inject the iframe directly
   await chrome.scripting.executeScript({
     target: { tabId: tab.id },

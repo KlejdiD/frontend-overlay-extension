@@ -56,7 +56,6 @@
     </style>
   </head>
   <body>
-    <iframe id="iframe"></iframe>
     <div id="overlay">
       <img id="overlayImage" style="display: none" />
     </div>
@@ -72,6 +71,12 @@
 
       <br /><br />
       <input type="file" id="imageUpload" accept="image/*" />
+      <span
+        id="fileNameDisplay"
+        style="margin-left: 10px; font-style: italic; color: #666"
+      >
+        No file chosen
+      </span>
 
       <button id="removeScreenshotButton">Remove Screenshot</button>
       <br /><br />
