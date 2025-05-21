@@ -12,6 +12,6 @@
       "128": "Copy.png"
     }
   },
-  "permissions": ["storage"],
+  "permissions": ["storage", "scripting"],
   "host_permissions": ["http://*/*", "https://*/*", "<all_urls>"]
 }
